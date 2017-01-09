@@ -1,0 +1,50 @@
+<html>
+<script src="https://unpkg.com/vue/dist/vue.js"></script>
+<script src="https://unpkg.com/vue-resource@1.0.3/dist/vue-resource.min.js"></script>
+
+<body>
+    <p>
+        Click the button to lead the JSON payload.
+    </p>
+
+    <div id="showEvents">
+        <button v-on:click="loadJSON">load Events</button>
+        <p>{{ feedback }}</p>
+        <ul>
+            <li v-for="event in events">
+                {{ event.beginDay }}: {{ event.name }}, {{ event.city }}({{event.country}})
+            </li>
+        </ul>
+    </div>
+
+    <script>
+        var app = new Vue({
+            el: '#showEvents',
+            data: {
+                events: [],
+                feedback: "press button above"
+            },
+            methods: {
+                loadJSON: function () {
+                    this.feedback = "fetching events...";
+
+                    Vue.http.get('https://devnet-events-api.herokuapp.com/api/v1/events/next?limit=10').then((response) => {
+                        if (response.ok) {
+                            this.events = response.body;
+                            this.feedback = "successfully fetched " + this.events.length + " events:";
+                        }
+                        else {
+                            this.feedback = "failed with error code: " + response.status;
+                        }
+
+                    }, (response) => {
+                        this.feedback = "error while fetching events";
+                    });
+                }
+            }
+        });
+    </script>
+
+</body>
+
+</html>
